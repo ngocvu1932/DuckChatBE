@@ -327,45 +327,61 @@ router.post('/create-message', authMiddleware, createMessage);
  * @swagger
  * /api/chat/get-messages:
  *   get:
- *     summary: Get all messages
+ *     summary: Lấy danh sách tin nhắn theo chatId
  *     security:
  *       - BearerAuth: []
  *     tags: [Chat]
+ *     parameters:
+ *       - in: query
+ *         name: chatId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của cuộc trò chuyện
  *     responses:
  *       200:
- *         description: Successfully
+ *         description: Lấy tin nhắn thành công
  *         content:
  *           application/json:
  *             schema:
  *               type: object
- *       201:
- *         description: Successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Lấy tin nhắn thành công!
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Message'
  *       400:
- *         description: Bad request
+ *         description: Không có tin nhắn
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   description: Error message
- *                   example: Invalid input
+ *                   example: Không có tin nhắn!
  *       500:
- *         description: Internal server error
+ *         description: Lỗi server
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 error:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
  *                   type: string
- *                   description: Error message
- *                   example: Server error
+ *                   example: Lỗi server!
  */
 router.get('/get-messages', authMiddleware, getMessages);
 

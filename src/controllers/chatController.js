@@ -13,20 +13,20 @@ export const createChat = async (req, res) => {
     }
 
     if (!userInfo) {
-      return res.status(400).json({status: 400, statusCode: 400, message: 'Người dùng không tồn tại!'});
+      return res.status(400).json({success: false, message: 'Người dùng không tồn tại!'});
     }
 
     user.push(req.user.userId);
 
     if (user.length < 2) {
-      return res.status(400).json({status: 400, statusCode: 401, message: 'Cần ít nhất 2 người!'});
+      return res.status(400).json({success: false, message: 'Cần ít nhất 2 người!'});
     }
 
     const existingChatname = await Chat.findOne({chatName});
     const existingChatUser = await Chat.findOne({user});
 
     if (existingChatname || existingChatUser) {
-      return res.status(400).json({status: 400, statusCode: 402, message: 'Nhóm chat đã tồn tại!'});
+      return res.status(400).json({success: false, message: 'Nhóm chat đã tồn tại!'});
     }
 
     const newChat = await createChatOk({
@@ -43,12 +43,12 @@ export const createChat = async (req, res) => {
     });
 
     if (!newChat) {
-      return res.status(400).json({status: 400, statusCode: 403, message: 'Tạo nhóm chat thất bại!'});
+      return res.status(400).json({success: false, message: 'Tạo nhóm chat thất bại!'});
     }
-    return res.status(201).json({status: 201, statusCode: 201, message: 'Tạo nhóm chat thành công!', data: newChat});
+    return res.status(200).json({success: true, message: 'Tạo nhóm chat thành công!', data: newChat});
   } catch (error) {
     console.error(error);
-    return res.status(500).json({status: 500, statusCode: 500, message: error});
+    return res.status(500).json({success: false, message: error});
   }
 };
 
@@ -59,7 +59,7 @@ export const createMessage = async (req, res) => {
     const chat = await Chat.findById(chatId);
 
     if (!chat) {
-      return res.status(400).json({status: 400, statusCode: 400, message: 'Nhóm chat không tồn tại!'});
+      return res.status(400).json({success: false, message: 'Nhóm chat không tồn tại!'});
     }
 
     const newMessage = new Message({
@@ -74,13 +74,13 @@ export const createMessage = async (req, res) => {
     const create = await newMessage.save();
 
     if (!create) {
-      return res.status(400).json({status: 400, statusCode: 401, message: 'Tạo tin nhắn thất bại!'});
+      return res.status(400).json({success: false, message: 'Tạo tin nhắn thất bại!'});
     }
 
-    return res.status(201).json({status: 201, statusCode: 201, message: 'Tạo tin nhắn thành công!', data: create});
+    return res.status(200).json({success: true, message: 'Tạo tin nhắn thành công!', data: create});
   } catch (error) {
     console.error(error);
-    return res.status(500).json({status: 500, statusCode: 500, message: 'Lỗi server!'});
+    return res.status(500).json({success: false, message: 'Lỗi server!'});
   }
 };
 
@@ -91,8 +91,7 @@ export const getChats = async (req, res) => {
 
     if (!chats || chats.length === 0) {
       return res.status(200).json({
-        status: 200,
-        statusCode: 200,
+        success: true,
         message: 'Không có nhóm chat!',
         data: [],
       });
@@ -111,14 +110,12 @@ export const getChats = async (req, res) => {
 
         delete chatRes.__v;
         return chatRes;
-      })
+      }),
     );
-    return res
-      .status(200)
-      .json({status: 200, statusCode: 201, message: 'Lấy danh sách nhóm chat thành công!', data: chatsRes});
+    return res.status(200).json({success: true, message: 'Lấy danh sách nhóm chat thành công!', data: chatsRes});
   } catch (error) {
     console.error(error);
-    return res.status(500).json({status: 500, statusCode: 500, message: 'Lỗi server!'});
+    return res.status(500).json({success: false, message: 'Lỗi server!'});
   }
 };
 
@@ -129,28 +126,28 @@ export const getChatById = async (req, res) => {
     const chat = await Chat.findById(chatId);
 
     if (!chat) {
-      return res.status(400).json({status: 400, statusCode: 400, message: 'Nhóm chat không tồn tại!'});
+      return res.status(400).json({success: false, message: 'Nhóm chat không tồn tại!'});
     }
 
-    return res
-      .status(200)
-      .json({status: 200, statusCode: 200, message: 'Lấy thông tin nhóm chat thành công!', data: chat});
+    return res.status(200).json({success: true, message: 'Lấy thông tin nhóm chat thành công!', data: chat});
   } catch (error) {
     console.error(error);
-    return res.status(500).json({status: 500, statusCode: 500, message: 'Lỗi server!'});
+    return res.status(500).json({success: false, message: 'Lỗi server!'});
   }
 };
 
 export const getMessages = async (req, res) => {
   try {
-    const messages = await Message.find();
+    const {chatId} = req.query;
+
+    const messages = await Message.find({chatId: chatId}).sort({createdAt: 1}); // 1 = tăng dần (cũ → mới)
     if (!messages) {
-      return res.status(400).json({status: 400, statusCode: 400, message: 'Không có tin nhắn!'});
+      return res.status(400).json({success: false, message: 'Không có tin nhắn!'});
     }
-    return res.status(200).json({status: 200, statusCode: 200, message: 'Lấy tin nhắn thành công!', data: messages});
+    return res.status(200).json({success: true, message: 'Lấy tin nhắn thành công!', data: messages});
   } catch (error) {
     console.error(error);
-    return res.status(500).json({status: 500, statusCode: 500, message: 'Lỗi server!'});
+    return res.status(500).json({success: false, message: 'Lỗi server!'});
   }
 };
 
@@ -161,12 +158,12 @@ export const getMessageById = async (req, res) => {
     const message = await Message.findById(messageId);
 
     if (!message) {
-      return res.status(400).json({status: 400, statusCode: 400, message: 'Không tồn tại tin nhắn!'});
+      return res.status(400).json({success: false, message: 'Không tồn tại tin nhắn!'});
     }
 
-    return res.status(200).json({status: 200, statusCode: 200, message: 'Lấy tin nhắn thành công!', data: message});
+    return res.status(200).json({success: true, message: 'Lấy tin nhắn thành công!', data: message});
   } catch (error) {
     console.error(error);
-    return res.status(500).json({status: 500, statusCode: 500, message: 'Lỗi server!'});
+    return res.status(500).json({success: false, message: 'Lỗi server!'});
   }
 };
