@@ -63,28 +63,6 @@ export const verifyEmail = async (req, res) => {
     delete user.password;
     delete user.__v;
 
-    // tạo chat cho user với botchat
-    const bot = await User.findOne({username: 'admin'});
-    if (!bot) {
-      return res.status(400).json({success: false, message: 'Cần tạo tài khoản admin!'});
-    }
-
-    const userChat = [user._id, bot._id];
-    const isSeen = [];
-
-    const newChat = await createChatOk({
-      user: userChat,
-      isGroupChat: false,
-      chatName: 'Chat_with_bot_admin_chat_with_vunn',
-      isSeen: isSeen,
-      groupImgUri:
-        'https://res.cloudinary.com/ngocvu1932/image/upload/v1737989807/chatWithVunn/avtChatGroup/hdcahulghltncdyioc7q.webp',
-    });
-
-    if (!newChat) {
-      return res.status(400).json({success: false, message: 'Tạo chatbot thất bại!'});
-    }
-
     return res.status(200).json({success: true, message: 'Xác thực email thành công!', data: user});
   } catch (error) {
     console.error(error);

@@ -7,7 +7,7 @@ const LastMessageSchema = new Schema(
     content: {type: String},
     timestamp: {type: Date, default: Date.now},
   },
-  {_id: false}
+  {_id: false},
 );
 
 const ChatSchema = new Schema(
@@ -24,7 +24,7 @@ const ChatSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Chat = mongoose.model('Chat', ChatSchema);

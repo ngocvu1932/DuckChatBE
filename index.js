@@ -10,19 +10,20 @@ import fs from 'fs';
 import cors from 'cors';
 import http from 'http';
 import {Server} from 'socket.io';
+import {initSocket} from './src/socket/socket.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: ['http://localhost:5173', 'https://chat-with-vunn.netlify.app'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  },
-  transports: ['websocket', 'polling'], // Cho phép cả WebSocket & Polling
-});
+// const io = new Server(server, {
+//   cors: {
+//     origin: ['http://localhost:5173', 'https://chat-with-vunn.netlify.app'],
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   },
+//   transports: ['websocket', 'polling'], // Cho phép cả WebSocket & Polling
+// });
 
 // Middleware để parse JSON
 app.use(express.json());
@@ -57,24 +58,8 @@ app.get('/', (req, res) => {
   res.send('Hello!!!');
 });
 
-// socket
-io.on('connection', (socket) => {
-  console.log('🔥 Client connected:', socket.id);
-
-  // *** CHAT NHÓM ***
-  socket.on('joinGroup', (groupId) => {
-    socket.join(groupId);
-    console.log(`👥 User joined group: ${groupId}`);
-  });
-
-  socket.on('sendMessage', ({groupId, message}) => {
-    socket.to(groupId).emit('receiveMessage', {senderId: socket.id, message});
-  });
-
-  socket.on('disconnect', () => {
-    console.log('❌ Client disconnected:', socket.id);
-  });
-});
+//socket
+initSocket(server);
 
 server.listen(PORT, () => {
   console.log(chalk.blue(`Server is running on http://localhost:${PORT}`));

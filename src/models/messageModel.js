@@ -8,10 +8,12 @@ const MessageSchema = new Schema(
     content: {type: String},
     isSeen: [{type: String}],
     mediaUrl: {type: String},
+    // 🔥 giữ lại messageId từ client
+    messageId: {type: String, required: true},
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Message = mongoose.model('Message', MessageSchema);

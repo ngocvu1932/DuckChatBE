@@ -54,30 +54,47 @@ export const createChat = async (req, res) => {
 
 export const createMessage = async (req, res) => {
   try {
-    const {chatId, senderId, type, content, isSeen, mediaUrl} = req.body;
+    const {chatId, senderId, type, content, isSeen, mediaUrl, messageId} = req.body;
 
     const chat = await Chat.findById(chatId);
-
     if (!chat) {
       return res.status(400).json({success: false, message: 'Nhóm chat không tồn tại!'});
     }
 
-    const newMessage = new Message({
+    // 1. tạo message
+    const message = await Message.create({
       chatId,
       senderId,
       type,
       content,
       isSeen,
       mediaUrl,
+      messageId,
     });
 
-    const create = await newMessage.save();
+    // 2. update chat (lastMessage + seen)
+    await Chat.updateOne(
+      {_id: chatId},
+      {
+        $set: {
+          lastMessage: {
+            messageId: message._id,
+            sender: senderId,
+            content: message.content,
+            timestamp: message.createdAt ?? new Date(),
+          },
+        },
+        $pull: {
+          isSeen: senderId, // remove sender khỏi seen
+        },
+      },
+    );
 
-    if (!create) {
-      return res.status(400).json({success: false, message: 'Tạo tin nhắn thất bại!'});
-    }
-
-    return res.status(200).json({success: true, message: 'Tạo tin nhắn thành công!', data: create});
+    return res.status(200).json({
+      success: true,
+      message: 'Tạo tin nhắn thành công!',
+      data: message,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({success: false, message: 'Lỗi server!'});
