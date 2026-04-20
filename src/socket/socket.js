@@ -1,7 +1,6 @@
 // src/socket/socket.js
 import {Server} from 'socket.io';
-import Message from '../models/messageModel.js';
-import Chat from '../models/chatModel.js';
+import {createMessage} from '../services/chatService.js';
 
 let io;
 
@@ -24,21 +23,11 @@ export const initSocket = (server) => {
     });
 
     // send message
-    // socket.on('sendMessage', ({message}) => {
-    //   console.log('mess', message);
-
-    //   const {receiverId} = message;
-
-    //   // gửi cho người nhận
-    //   io.to(receiverId).emit('receiveMessage', message);
-    // });
-
     socket.on('sendMessage', async (data, callback) => {
       try {
-        const {chatId, senderId, type, content, isSeen, mediaUrl, messageId, receiverId} = data;
+        const {chatId, senderId, type, content, isSeen, mediaUrl, messageId, receiverId, status} = data;
 
-        // 1. tạo message
-        const createNewMessage = await Message.create({
+        const message = await createMessage({
           chatId,
           senderId,
           type,
@@ -46,33 +35,16 @@ export const initSocket = (server) => {
           isSeen,
           mediaUrl,
           messageId,
+          status: 'sent', // 🔥 set ở BE
         });
 
-        const message = createNewMessage.toObject();
+        const messageToObj = message.toObject();
 
         // ✅ ACK cho người gửi
-        callback(message);
+        callback(messageToObj);
 
         // 📡 gửi cho người khác
-        io.to(receiverId).emit('receiveMessage', message);
-
-        // 2. update chat (lastMessage + seen)
-        await Chat.updateOne(
-          {_id: chatId},
-          {
-            $set: {
-              lastMessage: {
-                messageId: message._id,
-                sender: senderId,
-                content: message.content,
-                timestamp: message.createdAt ?? new Date(),
-              },
-            },
-            $pull: {
-              isSeen: senderId, // remove sender khỏi seen
-            },
-          },
-        );
+        io.to(receiverId).emit('receiveMessage', messageToObj);
       } catch (err) {
         console.error(err);
         // ❌ báo lỗi cho client

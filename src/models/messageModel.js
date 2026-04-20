@@ -10,6 +10,8 @@ const MessageSchema = new Schema(
     mediaUrl: {type: String},
     // 🔥 giữ lại messageId từ client
     messageId: {type: String, required: true},
+    status: {type: String},
+    react: [{type: String}],
   },
   {
     timestamps: true,

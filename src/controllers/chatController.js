@@ -54,41 +54,15 @@ export const createChat = async (req, res) => {
 
 export const createMessage = async (req, res) => {
   try {
-    const {chatId, senderId, type, content, isSeen, mediaUrl, messageId} = req.body;
+    const {chatId, senderId, type, content, isSeen, mediaUrl, messageId, status} = req.body;
 
     const chat = await Chat.findById(chatId);
     if (!chat) {
       return res.status(400).json({success: false, message: 'Nhóm chat không tồn tại!'});
     }
 
-    // 1. tạo message
-    const message = await Message.create({
-      chatId,
-      senderId,
-      type,
-      content,
-      isSeen,
-      mediaUrl,
-      messageId,
-    });
-
-    // 2. update chat (lastMessage + seen)
-    await Chat.updateOne(
-      {_id: chatId},
-      {
-        $set: {
-          lastMessage: {
-            messageId: message._id,
-            sender: senderId,
-            content: message.content,
-            timestamp: message.createdAt ?? new Date(),
-          },
-        },
-        $pull: {
-          isSeen: senderId, // remove sender khỏi seen
-        },
-      },
-    );
+    // 1. tạo messages
+    const message = await createMessage({chatId, senderId, type, content, isSeen, mediaUrl, messageId, status});
 
     return res.status(200).json({
       success: true,
@@ -155,16 +129,32 @@ export const getChatById = async (req, res) => {
 
 export const getMessages = async (req, res) => {
   try {
-    const {chatId} = req.query;
+    const {chatId, cursor, limit = 20} = req.query;
 
-    const messages = await Message.find({chatId: chatId}).sort({createdAt: 1}); // 1 = tăng dần (cũ → mới)
-    if (!messages) {
-      return res.status(400).json({success: false, message: 'Không có tin nhắn!'});
+    const query = {chatId};
+
+    //nếu có cursor thì lấy message cũ hơn
+    if (cursor) {
+      query._id = {
+        $lt: cursor,
+      };
     }
-    return res.status(200).json({success: true, message: 'Lấy tin nhắn thành công!', data: messages});
+
+    const messages = await Message.find(query)
+      .sort({_id: -1}) // mới → cũ
+      .limit(Number(limit));
+
+    return res.status(200).json({
+      success: true,
+      data: messages,
+      nextCursor: messages.length > 0 ? messages[messages.length - 1]._id : null,
+    });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({success: false, message: 'Lỗi server!'});
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi server!',
+    });
   }
 };
 

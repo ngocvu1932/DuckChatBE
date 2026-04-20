@@ -327,10 +327,11 @@ router.post('/create-message', authMiddleware, createMessage);
  * @swagger
  * /api/chat/get-messages:
  *   get:
- *     summary: Lấy danh sách tin nhắn theo chatId
- *     security:
- *       - BearerAuth: []
+ *     summary: Lấy danh sách tin nhắn theo chatId (phân trang cursor)
  *     tags: [Chat]
+ *     security:
+ *       - bearerAuth: []
+ *
  *     parameters:
  *       - in: query
  *         name: chatId
@@ -338,6 +339,22 @@ router.post('/create-message', authMiddleware, createMessage);
  *         schema:
  *           type: string
  *         description: ID của cuộc trò chuyện
+ *
+ *       - in: query
+ *         name: cursor
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: _id của tin nhắn cuối cùng (dùng để load thêm)
+ *
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Số lượng tin nhắn mỗi lần load
+ *
  *     responses:
  *       200:
  *         description: Lấy tin nhắn thành công
@@ -349,26 +366,46 @@ router.post('/create-message', authMiddleware, createMessage);
  *                 success:
  *                   type: boolean
  *                   example: true
- *                 message:
- *                   type: string
- *                   example: Lấy tin nhắn thành công!
  *                 data:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/Message'
- *       400:
- *         description: Không có tin nhắn
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: false
- *                 message:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 69e4a1404794c8990cc646c0
+ *                       chatId:
+ *                         type: string
+ *                         example: 67a2c2fd8be0452239e4e900
+ *                       senderId:
+ *                         type: string
+ *                         example: 67a2c24b8be0452239e4e8f3
+ *                       type:
+ *                         type: string
+ *                         example: text
+ *                       content:
+ *                         type: string
+ *                         example: "thử lại"
+ *                       mediaUrl:
+ *                         type: string
+ *                         example: ""
+ *                       messageId:
+ *                         type: string
+ *                         example: "265ece45-517f-4cc3-9495-03b543ed551d"
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2026-04-19T09:32:48.841Z
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: 2026-04-19T09:32:48.841Z
+ *
+ *                 nextCursor:
  *                   type: string
- *                   example: Không có tin nhắn!
+ *                   nullable: true
+ *                   example: 69e4a1404794c8990cc646c0
+ *
  *       500:
  *         description: Lỗi server
  *         content:
