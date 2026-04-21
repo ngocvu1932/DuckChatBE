@@ -4,6 +4,7 @@ import connectDB from './src/config/database.js';
 import chalk from 'chalk';
 import userRouter from './src/routes/userRoute.js';
 import chatRouter from './src/routes/chatRoute.js';
+import messageRouter from './src/routes/messageRoute.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpecs from './src/config/swagger.js';
 import fs from 'fs';
@@ -44,11 +45,11 @@ app.use(
 const customCss = fs.readFileSync(process.cwd() + '/swagger-ui.css', 'utf8');
 // Tích hợp Swagger
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {customCss}));
-// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 // Routes
 app.use('/api/auth', userRouter);
 app.use('/api/chat', chatRouter);
+app.use('/api/message', messageRouter);
 
 app.get('/check-heath', (req, res) => {
   res.send('Hello, server is running');

@@ -1,5 +1,14 @@
 import mongoose, {Schema} from 'mongoose';
 
+const reactMessageSchema = new Schema(
+  {
+    react: {type: String},
+    count: {type: Number}, // để number
+    user: [{type: String}], // để number
+  },
+  {_id: false},
+);
+
 const MessageSchema = new Schema(
   {
     chatId: {type: String, required: true},
@@ -11,7 +20,7 @@ const MessageSchema = new Schema(
     // 🔥 giữ lại messageId từ client
     messageId: {type: String, required: true},
     status: {type: String},
-    react: [{type: String}],
+    react: [reactMessageSchema],
   },
   {
     timestamps: true,

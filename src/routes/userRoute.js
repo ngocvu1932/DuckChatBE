@@ -1,5 +1,5 @@
 import express from 'express';
-import {logout, registerUser, sendMailVerification, verifyEmail} from '../controllers/userController.js';
+import {getUsersByIds, logout, registerUser, sendMailVerification, verifyEmail} from '../controllers/userController.js';
 import {loginUser} from '../controllers/userController.js';
 import {refreshToken} from '../controllers/userController.js';
 import {getProfile} from '../controllers/userController.js';
@@ -617,5 +617,78 @@ router.get('/get-profile', authMiddleware, getProfile);
  *                   example: Server error
  */
 router.post('/logout', authMiddleware, logout);
+
+/**
+ * @swagger
+ * /api/auth/get-users-by-ids:
+ *   post:
+ *     summary: Lấy danh sách user theo mảng userIds
+ *     tags: [Users]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userIds
+ *             properties:
+ *               userIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["662a123abc", "662b456def"]
+ *     responses:
+ *       200:
+ *         description: Lấy danh sách user thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: "662a123abc"
+ *                       username:
+ *                         type: string
+ *                         example: "vu"
+ *                       fullname:
+ *                         type: string
+ *                         example: "Ngô Ngọc Vũ"
+ *                       email:
+ *                         type: string
+ *                         example: "vu@gmail.com"
+ *                       avatar:
+ *                         type: string
+ *                         example: "https://..."
+ *                       online:
+ *                         type: boolean
+ *                         example: true
+ *       400:
+ *         description: userIds không hợp lệ
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: userIds không được rỗng
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: Server error
+ */
+router.post('/get-users-by-ids', authMiddleware, getUsersByIds);
 
 export default router;

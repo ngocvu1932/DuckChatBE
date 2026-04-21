@@ -264,3 +264,33 @@ export const logout = async (req, res) => {
     return res.status(500).json({success: false, message: error});
   }
 };
+
+export const getUsersByIds = async (req, res) => {
+  try {
+    const {userIds} = req.body;
+
+    if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'userIds không được rỗng',
+      });
+    }
+
+    const users = await User.find({
+      _id: {$in: userIds},
+    })
+      // .select('_id username fullname avatar email online') // chỉ lấy field cần
+      .lean();
+
+    return res.json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    console.error('getUsersByIds error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error',
+    });
+  }
+};
