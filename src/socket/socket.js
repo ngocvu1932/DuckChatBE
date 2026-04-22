@@ -1,6 +1,6 @@
 // src/socket/socket.js
 import {Server} from 'socket.io';
-import {createMessageService, reactMessageService} from '../services/messageService.js';
+import {createMessageService, reactMessageService, removeReactMessageService} from '../services/messageService.js';
 
 let io;
 
@@ -52,7 +52,7 @@ export const initSocket = (server) => {
       }
     });
 
-    // send message
+    // send react message
     socket.on('reactMessage', async (data, callback) => {
       try {
         const {chatId, messId, react, userId, receiverId} = data;
@@ -65,6 +65,27 @@ export const initSocket = (server) => {
 
           // 📡 gửi cho người khác
           io.to(receiverId).emit('receiveReactMessage', data);
+        }
+      } catch (err) {
+        console.error(err);
+        // ❌ báo lỗi cho client
+        callback({error: true});
+      }
+    });
+
+    //remove react message
+    socket.on('removeReactMessage', async (data, callback) => {
+      try {
+        const {chatId, messId, userId, receiverId} = data;
+
+        const reactMess = await removeReactMessageService({chatId, messId, userId});
+
+        if (reactMess) {
+          // ✅ ACK cho người gửi
+          callback(data);
+
+          // 📡 gửi cho người khác
+          io.to(receiverId).emit('receiveRemoveReactMessage', data);
         }
       } catch (err) {
         console.error(err);

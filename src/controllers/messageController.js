@@ -1,6 +1,6 @@
 import Chat from '../models/chatModel.js';
 import Message from '../models/messageModel.js';
-import {createMessageService, reactMessageService} from '../services/messageService.js';
+import {createMessageService, reactMessageService, removeReactMessageService} from '../services/messageService.js';
 
 export const createMessage = async (req, res) => {
   try {
@@ -78,6 +78,29 @@ export const reactMessage = async (req, res) => {
     const {chatId, messId, react, userId} = req.body;
 
     const reactMess = await reactMessageService({chatId, messId, react, userId});
+
+    if (!reactMess) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tồn tại tin nhắn',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: reactMess.react,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({success: false, message: 'Lỗi server!'});
+  }
+};
+
+export const removeReactMessage = async (req, res) => {
+  try {
+    const {chatId, messId, userId} = req.body;
+
+    const reactMess = await removeReactMessageService({chatId, messId, userId});
 
     if (!reactMess) {
       return res.status(404).json({

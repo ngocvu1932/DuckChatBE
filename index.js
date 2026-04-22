@@ -18,13 +18,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 const server = http.createServer(app);
-// const io = new Server(server, {
-//   cors: {
-//     origin: ['http://localhost:5173', 'https://chat-with-vunn.netlify.app'],
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   },
-//   transports: ['websocket', 'polling'], // Cho phép cả WebSocket & Polling
-// });
 
 // Middleware để parse JSON
 app.use(express.json());

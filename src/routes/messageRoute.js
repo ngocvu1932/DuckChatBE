@@ -1,4 +1,4 @@
-import {createMessage, getMessageById, getMessages, reactMessage} from '../controllers/messageController.js';
+import {createMessage, getMessageById, getMessages, reactMessage, removeReactMessage} from '../controllers/messageController.js';
 import authMiddleware from '../middlewares/authMiddlewares.js';
 import express from 'express';
 
@@ -368,5 +368,95 @@ router.get('/get-message-by-id', authMiddleware, getMessageById);
  *                   example: Lỗi server!
  */
 router.post('/react-message', authMiddleware, reactMessage);
+
+/**
+ * @swagger
+ * /api/message/remove-react-message:
+ *   post:
+ *     summary: Remove react cua user khoi tin nhan
+ *     tags: [Message]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - chatId
+ *               - messId
+ *               - userId
+ *             properties:
+ *               chatId:
+ *                 type: string
+ *                 description: ID cua chat
+ *                 example: "67a2c2fd8be0452239e4e900"
+ *               messId:
+ *                 type: string
+ *                 description: ID cua tin nhan
+ *                 example: "69e4a1404794c8990cc646c0"
+ *               userId:
+ *                 type: string
+ *                 description: ID user can xoa react
+ *                 example: "67a2c24b8be0452239e4e8f3"
+ *
+ *     responses:
+ *       200:
+ *         description: Remove react thanh cong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       react:
+ *                         type: string
+ *                         example: "like"
+ *                       count:
+ *                         type: integer
+ *                         example: 1
+ *                       user:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                         example: ["user1"]
+ *
+ *       404:
+ *         description: Khong tim thay tin nhan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Khong ton tai tin nhan
+ *
+ *       500:
+ *         description: Loi server
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Loi server!
+ */
+router.post('/remove-react-message', authMiddleware, removeReactMessage);
 
 export default router;

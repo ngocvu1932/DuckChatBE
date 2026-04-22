@@ -74,3 +74,24 @@ export const reactMessageService = async ({chatId, messId, react, userId}) => {
     console.log('error', error);
   }
 };
+
+export const removeReactMessageService = async ({chatId, messId, userId}) => {
+  try {
+    const message = await Message.findOne({
+      chatId,
+      _id: messId,
+    });
+
+    if (!message) {
+      return null;
+    }
+
+    message.react = message.react.filter((r) => !r.user.includes(userId));
+
+    await message.save();
+
+    return message;
+  } catch (error) {
+    console.log('error', error);
+  }
+};
