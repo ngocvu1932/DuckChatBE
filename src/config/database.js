@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import chalk from 'chalk';
+// import Friendships from '../models/friendshipsModel.js';
 
 const connectDB = async () => {
   try {
@@ -10,6 +11,8 @@ const connectDB = async () => {
     if (conn) {
       console.log(chalk.bgYellowBright(`MongoDB Connected: ${conn.connection.host}`));
     }
+
+    // await Friendships.init();
   } catch (error) {
     console.error(`Error: ${error}`);
     process.exit(1);

@@ -1,5 +1,12 @@
 import express from 'express';
-import {getUsersByIds, logout, registerUser, sendMailVerification, verifyEmail} from '../controllers/userController.js';
+import {
+  getUserByUsername,
+  getUsersByIds,
+  logout,
+  registerUser,
+  sendMailVerification,
+  verifyEmail,
+} from '../controllers/userController.js';
 import {loginUser} from '../controllers/userController.js';
 import {refreshToken} from '../controllers/userController.js';
 import {getProfile} from '../controllers/userController.js';
@@ -690,5 +697,102 @@ router.post('/logout', authMiddleware, logout);
  *               message: Server error
  */
 router.post('/get-users-by-ids', authMiddleware, getUsersByIds);
+
+/**
+ * @swagger
+ * /api/auth/get-user-by-username/{username}:
+ *   get:
+ *     summary: Lay thong tin user theo username
+ *     tags: [Users]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Username cua user can lay thong tin
+ *         example: ngocvu
+ *     responses:
+ *       200:
+ *         description: Lay thong tin user thanh cong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Lay thong tin nguoi dung thanh cong!
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       example: "662a123abc"
+ *                     phone:
+ *                       type: string
+ *                       example: "0912345678"
+ *                     username:
+ *                       type: string
+ *                       example: "ngocvu"
+ *                     fullname:
+ *                       type: string
+ *                       example: "Ngo Ngoc Vu"
+ *                     email:
+ *                       type: string
+ *                       example: "ngocvu@example.com"
+ *                     avatar:
+ *                       type: string
+ *                       example: "https://example.com/avatar.jpg"
+ *                     birthday:
+ *                       type: string
+ *                       example: "2000-01-01"
+ *                     address:
+ *                       type: string
+ *                       example: "Ho Chi Minh City"
+ *                     isVerified:
+ *                       type: boolean
+ *                       example: true
+ *                     online:
+ *                       type: boolean
+ *                       example: false
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-01-02T06:03:51.340Z"
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-01-02T06:03:51.340Z"
+ *       400:
+ *         description: username khong hop le
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: username khong duoc de trong
+ *       401:
+ *         description: Token khong hop le hoac het han
+ *       404:
+ *         description: Khong tim thay user
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: Khong tim thay nguoi dung!
+ *       500:
+ *         description: Loi server
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: Server error
+ */
+router.get('/get-user-by-username/:username', authMiddleware, getUserByUsername);
 
 export default router;

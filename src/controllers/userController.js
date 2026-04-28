@@ -294,3 +294,37 @@ export const getUsersByIds = async (req, res) => {
     });
   }
 };
+
+export const getUserByUsername = async (req, res) => {
+  try {
+    const {username} = req.params;
+
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        message: 'Username không để trống',
+      });
+    }
+
+    const user = await User.findOne({username}).select('-password -__v -verificationCode').lean();
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy người dùng!',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Lấy thông tin người dùng thành công!',
+      data: user,
+    });
+  } catch (error) {
+    console.error('getUserByUsername error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi server!',
+    });
+  }
+};
