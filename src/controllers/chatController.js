@@ -22,11 +22,16 @@ export const createChat = async (req, res) => {
       return res.status(400).json({success: false, message: 'Cần ít nhất 2 người!'});
     }
 
-    const existingChatname = await Chat.findOne({chatName});
+    // const existingChatname = await Chat.findOne({chatName});
     const existingChatUser = await Chat.findOne({user});
 
-    if (existingChatname || existingChatUser) {
-      return res.status(400).json({success: false, message: 'Nhóm chat đã tồn tại!'});
+    if (existingChatUser) {
+      return res.status(200).json({
+        success: true,
+        message: 'Nhóm chat đã tồn tại!',
+        isExisting: true,
+        data: existingChatUser,
+      });
     }
 
     const newChat = await createChatOk({
