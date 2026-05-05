@@ -85,7 +85,34 @@ export const getChats = async (req, res) => {
         return chatRes;
       }),
     );
-    return res.status(200).json({success: true, message: 'Lấy danh sách nhóm chat thành công!', data: chatsRes});
+
+    chatsRes.sort((chatA, chatB) => {
+      const timestampA = chatA?.lastMessage?.timestamp ? new Date(chatA.lastMessage.timestamp).getTime() : null;
+      const timestampB = chatB?.lastMessage?.timestamp ? new Date(chatB.lastMessage.timestamp).getTime() : null;
+
+      const hasValidTimestampA = Number.isFinite(timestampA);
+      const hasValidTimestampB = Number.isFinite(timestampB);
+
+      if (!hasValidTimestampA && !hasValidTimestampB) {
+        return 0;
+      }
+
+      if (!hasValidTimestampA) {
+        return 1;
+      }
+
+      if (!hasValidTimestampB) {
+        return -1;
+      }
+
+      return timestampB - timestampA;
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Lấy danh sách nhóm chat thành công!',
+      data: chatsRes,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({success: false, message: 'Lỗi server!'});

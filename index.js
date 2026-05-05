@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import userRouter from './src/routes/userRoute.js';
 import chatRouter from './src/routes/chatRoute.js';
 import messageRouter from './src/routes/messageRoute.js';
+import postRouter from './src/routes/postRoute.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpecs from './src/config/swagger.js';
 import fs from 'fs';
@@ -43,6 +44,7 @@ app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {customCss}))
 app.use('/api/auth', userRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/message', messageRouter);
+app.use('/api/post', postRouter);
 
 app.get('/check-heath', (req, res) => {
   res.send('Hello, server is running');
