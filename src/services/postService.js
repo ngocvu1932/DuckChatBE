@@ -38,24 +38,35 @@ export const createPostService = async ({userId, content, images, visibility}) =
   return await Post.findById(newPost._id).populate(postPopulate);
 };
 
-export const getPostsService = async ({currentUserId, page = 1, limit = 20}) => {
-  const safePage = Math.max(Number(page) || 1, 1);
+export const getPostsService = async ({currentUserId, cursor, limit = 20}) => {
   const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 50);
-  const skip = (safePage - 1) * safeLimit;
+  const query = {isDeleted: false};
 
-  const [posts, total] = await Promise.all([
-    Post.find({isDeleted: false}).sort({createdAt: -1}).skip(skip).limit(safeLimit).populate(postPopulate),
-    Post.countDocuments({isDeleted: false}),
-  ]);
+  if (cursor) {
+    query._id = {$lt: cursor};
+  }
+
+  const posts = await Post.find(query).sort({_id: -1}).limit(safeLimit).populate(postPopulate);
 
   return {
     posts: posts.map((post) => formatPostResponse(post, currentUserId)),
-    pagination: {
-      page: safePage,
-      limit: safeLimit,
-      total,
-      hasMore: safePage * safeLimit < total,
-    },
+    nextCursor: posts.length > 0 ? posts[posts.length - 1]._id : null,
+  };
+};
+
+export const getPostsByUserIdService = async ({targetUserId, currentUserId, cursor, limit = 20}) => {
+  const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 50);
+  const query = {user: targetUserId, isDeleted: false};
+
+  if (cursor) {
+    query._id = {$lt: cursor};
+  }
+
+  const posts = await Post.find(query).sort({_id: -1}).limit(safeLimit).populate(postPopulate);
+
+  return {
+    posts: posts.map((post) => formatPostResponse(post, currentUserId)),
+    nextCursor: posts.length > 0 ? posts[posts.length - 1]._id : null,
   };
 };
 

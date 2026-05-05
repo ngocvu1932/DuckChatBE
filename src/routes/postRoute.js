@@ -1,5 +1,5 @@
 import express from 'express';
-import {commentPost, createPost, getPosts, likePost} from '../controllers/postController.js';
+import {commentPost, createPost, getPosts, getPostsByUserId, likePost} from '../controllers/postController.js';
 import authMiddleware from '../middlewares/authMiddlewares.js';
 
 const router = express.Router();
@@ -120,12 +120,12 @@ router.post('/create-post', authMiddleware, createPost);
  *     tags: [Post]
  *     parameters:
  *       - in: query
- *         name: page
+ *         name: cursor
  *         required: false
  *         schema:
- *           type: integer
- *           default: 1
- *         example: 1
+ *           type: string
+ *         description: _id cua post cuoi cung trong lan load truoc, dung de lay post cu hon
+ *         example: 6819e4a1404794c8990cc646c0
  *       - in: query
  *         name: limit
  *         required: false
@@ -145,9 +145,6 @@ router.post('/create-post', authMiddleware, createPost);
  *                 success:
  *                   type: boolean
  *                   example: true
- *                 message:
- *                   type: string
- *                   example: Lay danh sach bai post thanh cong!
  *                 data:
  *                   type: array
  *                   items:
@@ -184,27 +181,150 @@ router.post('/create-post', authMiddleware, createPost);
  *                       createdAt:
  *                         type: string
  *                         format: date-time
- *                 pagination:
- *                   type: object
- *                   properties:
- *                     page:
- *                       type: integer
- *                       example: 1
- *                     limit:
- *                       type: integer
- *                       example: 20
- *                     total:
- *                       type: integer
- *                       example: 35
- *                     hasMore:
- *                       type: boolean
- *                       example: true
+ *                 nextCursor:
+ *                   type: string
+ *                   nullable: true
+ *                   example: 6819e4a1404794c8990cc646c0
  *       401:
  *         description: Chua dang nhap hoac token khong hop le
  *       500:
  *         description: Loi server
  */
 router.get('/get-posts', authMiddleware, getPosts);
+
+/**
+ * @swagger
+ * /api/post/get-posts-by-user/{userId}:
+ *   get:
+ *     summary: Get posts by userId
+ *     description: Lay danh sach bai post cua mot user theo userId, sap xep moi nhat truoc. Token Bearer la bat buoc.
+ *     security:
+ *       - BearerAuth: []
+ *     tags: [Post]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID cua user can lay danh sach post
+ *         example: 67762c47dbfdc1fa0bc5242f
+ *       - in: query
+ *         name: cursor
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: _id cua post cuoi cung trong lan load truoc, dung de lay post cu hon
+ *         example: 6819e4a1404794c8990cc646c0
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *           maximum: 50
+ *         example: 20
+ *     responses:
+ *       200:
+ *         description: Lay danh sach post theo user thanh cong
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: 6819e4a1404794c8990cc646c0
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           _id:
+ *                             type: string
+ *                             example: 67762c47dbfdc1fa0bc5242f
+ *                           fullname:
+ *                             type: string
+ *                             example: Nguyen Van A
+ *                           username:
+ *                             type: string
+ *                             example: nguyenvana
+ *                           avatar:
+ *                             type: string
+ *                             example: https://example.com/avatar.jpg
+ *                           online:
+ *                             type: boolean
+ *                             example: true
+ *                       content:
+ *                         type: string
+ *                         example: Hom nay minh dang bai dau tien tren DuckChat.
+ *                       images:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                       likes:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                       comments:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                       visibility:
+ *                         type: string
+ *                         enum: [PUBLIC, FRIENDS, PRIVATE]
+ *                         example: PUBLIC
+ *                       likeCount:
+ *                         type: integer
+ *                         example: 18
+ *                       commentCount:
+ *                         type: integer
+ *                         example: 2
+ *                       isLiked:
+ *                         type: boolean
+ *                         example: true
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                 nextCursor:
+ *                   type: string
+ *                   nullable: true
+ *                   example: 6819e4a1404794c8990cc646c0
+ *       400:
+ *         description: userId thieu hoac khong hop le
+ *         content:
+ *           application/json:
+ *             examples:
+ *               missingUserId:
+ *                 value:
+ *                   success: false
+ *                   message: "userId la bat buoc!"
+ *               invalidUserId:
+ *                 value:
+ *                   success: false
+ *                   message: "userId khong hop le!"
+ *       401:
+ *         description: Chua dang nhap hoac token khong hop le
+ *       404:
+ *         description: Khong tim thay nguoi dung
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: "Nguoi dung khong ton tai!"
+ *       500:
+ *         description: Loi server
+ */
+router.get('/get-posts-by-user/:userId', authMiddleware, getPostsByUserId);
 
 /**
  * @swagger
