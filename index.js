@@ -29,7 +29,7 @@ connectDB();
 // Enable CORS
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'https://chat-with-vunn.netlify.app', '*'],
+    origin: ['http://localhost:5173', 'https://duckchatfe.netlify.app', '*'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true, // Nếu gửi cookie, token
