@@ -1,5 +1,5 @@
 import express from 'express';
-import {createPost, getPosts} from '../controllers/postController.js';
+import {commentPost, createPost, getPosts, likePost} from '../controllers/postController.js';
 import authMiddleware from '../middlewares/authMiddlewares.js';
 
 const router = express.Router();
@@ -205,5 +205,147 @@ router.post('/create-post', authMiddleware, createPost);
  *         description: Loi server
  */
 router.get('/get-posts', authMiddleware, getPosts);
+
+/**
+ * @swagger
+ * /api/post/like-post:
+ *   post:
+ *     summary: Like hoặc bỏ like bài viết
+ *     description: API cho phép người dùng like hoặc bỏ like một bài viết. Nếu đã like trước đó thì sẽ bỏ like, ngược lại sẽ thêm like.
+ *     tags: [Post]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - postId
+ *             properties:
+ *               postId:
+ *                 type: string
+ *                 example: "665f1c2a9c1234567890abcd"
+ *     responses:
+ *       200:
+ *         description: Like hoặc bỏ like thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Like bai post thanh cong!"
+ *                 data:
+ *                   type: object
+ *                   description: Dữ liệu bài viết sau khi đã cập nhật like
+ *       400:
+ *         description: Thiếu postId
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: "postId la bat buoc!"
+ *       404:
+ *         description: Không tìm thấy bài viết
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: "Post khong ton tai!"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: "Loi server!"
+ */
+router.post('/like-post', authMiddleware, likePost);
+
+/**
+ * @swagger
+ * /api/post/comment:
+ *   post:
+ *     summary: Comment bài viết
+ *     description: API cho phép người dùng thêm comment vào bài viết. Comment mới sẽ được đưa lên đầu danh sách.
+ *     tags: [Post]
+ *     security:
+ *         - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - postId
+ *             properties:
+ *               postId:
+ *                 type: string
+ *                 example: "665f1c2a9c1234567890abcd"
+ *               content:
+ *                 type: string
+ *                 example: "Bai viet hay qua!"
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["https://image1.jpg", "https://image2.jpg"]
+ *     responses:
+ *       200:
+ *         description: Comment thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Comment thanh cong!"
+ *                 data:
+ *                   type: object
+ *                   description: Dữ liệu bài viết sau khi đã thêm comment
+ *       400:
+ *         description: Dữ liệu không hợp lệ
+ *         content:
+ *           application/json:
+ *             examples:
+ *               missingPostId:
+ *                 value:
+ *                   success: false
+ *                   message: "postId la bat buoc!"
+ *               invalidPostId:
+ *                 value:
+ *                   success: false
+ *                   message: "postId khong hop le!"
+ *               emptyContent:
+ *                 value:
+ *                   success: false
+ *                   message: "Noi dung comment khong duoc rong!"
+ *       404:
+ *         description: Không tìm thấy bài viết
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: "Post khong ton tai!"
+ *       500:
+ *         description: Lỗi server
+ *         content:
+ *           application/json:
+ *             example:
+ *               success: false
+ *               message: "Loi server!"
+ */
+router.post('/comment', authMiddleware, commentPost);
 
 export default router;
