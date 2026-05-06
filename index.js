@@ -1,13 +1,14 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import connectDB from './src/config/database.js';
+import connectDB from './src/configs/database.js';
 import chalk from 'chalk';
 import userRouter from './src/routes/userRoute.js';
 import chatRouter from './src/routes/chatRoute.js';
+import uploadRouter from './src/routes/uploadRoute.js';
 import messageRouter from './src/routes/messageRoute.js';
 import postRouter from './src/routes/postRoute.js';
 import swaggerUi from 'swagger-ui-express';
-import swaggerSpecs from './src/config/swagger.js';
+import swaggerSpecs from './src/configs/swagger.js';
 import fs from 'fs';
 import cors from 'cors';
 import http from 'http';
@@ -45,6 +46,7 @@ app.use('/api/auth', userRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/message', messageRouter);
 app.use('/api/post', postRouter);
+app.use('/api/media', uploadRouter);
 
 app.get('/check-heath', (req, res) => {
   res.send('Hello, server is running');

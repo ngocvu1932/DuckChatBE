@@ -5,6 +5,7 @@ const LastMessageSchema = new Schema(
     messageId: {type: String},
     sender: {type: String},
     content: {type: String},
+    type: {type: String},
     timestamp: {type: Date, default: Date.now},
   },
   {_id: false},

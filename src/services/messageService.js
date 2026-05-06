@@ -26,6 +26,7 @@ export const createMessageService = async ({chatId, senderId, type, content, isS
             sender: senderId,
             content: createMessage.content,
             timestamp: createMessage.createdAt ?? new Date(),
+            type: createMessage.type,
           },
         },
         $pull: {
