@@ -16,7 +16,7 @@ const MessageSchema = new Schema(
     type: {type: String, required: true},
     content: {type: String},
     isSeen: [{type: String}],
-    mediaUrl: {type: String},
+    mediaUrl: [{type: String}],
     // 🔥 giữ lại messageId từ client
     messageId: {type: String, required: true},
     status: {type: String},
