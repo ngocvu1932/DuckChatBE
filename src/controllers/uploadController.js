@@ -30,8 +30,11 @@ export const uploadAudio = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      url: result.secure_url,
-      duration: result.duration,
+      message: 'Upload thành công!',
+      data: {
+        url: result.secure_url,
+        duration: result.duration,
+      },
     });
   } catch (err) {
     console.error(err);
