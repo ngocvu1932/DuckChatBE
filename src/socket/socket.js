@@ -94,6 +94,26 @@ export const initSocket = (server) => {
       }
     });
 
+    socket.on('call-user', ({to, from, offer}) => {
+      io.to(to).emit('incoming-call', {from, offer});
+    });
+
+    socket.on('answer-call', ({to, from, answer}) => {
+      io.to(to).emit('call-answered', {from, answer});
+    });
+
+    socket.on('ice-candidate', ({to, candidate}) => {
+      io.to(to).emit('ice-candidate', {candidate});
+    });
+
+    socket.on('end-call', ({to}) => {
+      io.to(to).emit('end-call');
+    });
+
+    socket.on('reject-call', ({to}) => {
+      io.to(to).emit('call-rejected');
+    });
+
     socket.on('disconnect', () => {
       console.log('❌ Client disconnected:', socket.id);
     });
